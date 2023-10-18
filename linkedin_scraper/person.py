@@ -143,6 +143,11 @@ class Person(Scraper):
                     company = outer_positions[0].find_element(By.TAG_NAME,"span").text
                     work_times = outer_positions[1].find_element(By.TAG_NAME,"span").text
                     location = outer_positions[2].find_element(By.TAG_NAME,"span").text
+            else:
+                position_title = ""
+                company = ""
+                work_times = ""
+                location = ""
 
             times = work_times.split("·")[0].strip() if work_times else ""
             duration = work_times.split("·")[1].strip() if len(work_times.split("·")) > 1 else None
