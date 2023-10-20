@@ -1,4 +1,11 @@
+import os
+import random
+import time
+
+import backoff
 import requests
+import selenium
+from linkedin_scraper import selectors
 from linkedin_scraper.utils import ElementCountMismatchException
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -6,8 +13,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from .objects import Experience, Education, Scraper, Interest, Accomplishment, Contact
-import os
-from linkedin_scraper import selectors
 
 
 class Person(Scraper):
@@ -107,6 +112,18 @@ class Person(Scraper):
         except:
             return False
 
+    @backoff.on_exception(
+        backoff.expo,
+        (
+            selenium.common.exceptions.TimeoutException,
+            selenium.common.exceptions.WebDriverException,
+            selenium.common.exceptions.StaleElementReferenceException,
+            selenium.common.exceptions.ElementNotInteractableException,
+            selenium.common.exceptions.NoSuchElementException,
+            selenium.common.exceptions.UnexpectedAlertPresentException,
+        ),
+        max_time=60
+    )
     def get_experiences(self):
         def get_position_work_times(position_work_times: str):
             times = position_work_times.split("·")[0].strip() if position_work_times else ""
@@ -115,10 +132,13 @@ class Person(Scraper):
             to_date = " ".join(times.split(" ")[3:]) if times else ""
             return duration, from_date, to_date
         url = os.path.join(self.linkedin_url, "details/experience")
+        time.sleep(random.uniform(0, 5))  # Sleep for a random time
         self.driver.get(url)
         self.focus()
         main = self.wait_for_element_to_load(by=By.TAG_NAME, name="main")
+        time.sleep(random.uniform(0, 5))  # Sleep for a random time
         self.scroll_to_half()
+        time.sleep(random.uniform(0, 5))  # Sleep for a random time
         self.scroll_to_bottom()
         main_list = self.wait_for_element_to_load(name="pvs-list", base=main)
         for li_position_elem in main_list.find_elements(By.XPATH, "li"):
@@ -212,14 +232,27 @@ class Person(Scraper):
                         linkedin_url=company_linkedin_url
                     )
                     self.add_experience(experience)
-
+    @backoff.on_exception(
+        backoff.expo,
+        (
+            selenium.common.exceptions.TimeoutException,
+            selenium.common.exceptions.WebDriverException,
+            selenium.common.exceptions.StaleElementReferenceException,
+            selenium.common.exceptions.ElementNotInteractableException,
+            selenium.common.exceptions.NoSuchElementException,
+            selenium.common.exceptions.UnexpectedAlertPresentException,
+        ),
+        max_time=60
+    )
     def get_educations(self):
+        time.sleep(random.uniform(0, 5))  # Sleep for a random time
         url = os.path.join(self.linkedin_url, "details/education")
         self.driver.get(url)
         self.focus()
         main = self.wait_for_element_to_load(by=By.TAG_NAME, name="main")
         self.scroll_to_half()
         self.scroll_to_bottom()
+        time.sleep(random.uniform(0, 5))  # Sleep for a random time
         main_list = self.wait_for_element_to_load(name="pvs-list", base=main)
         for position in main_list.find_elements(By.CLASS_NAME, "pvs-entity"):
             institution_logo_elem, position_details = position.find_elements(By.XPATH, "*")
@@ -255,7 +288,20 @@ class Person(Scraper):
             )
             self.add_education(education)
 
+    @backoff.on_exception(
+        backoff.expo,
+        (
+            selenium.common.exceptions.TimeoutException,
+            selenium.common.exceptions.WebDriverException,
+            selenium.common.exceptions.StaleElementReferenceException,
+            selenium.common.exceptions.ElementNotInteractableException,
+            selenium.common.exceptions.NoSuchElementException,
+            selenium.common.exceptions.UnexpectedAlertPresentException,
+        ),
+        max_time=60
+    )
     def get_name_and_location(self):
+        time.sleep(random.uniform(0, 3))  # Sleep for a random time
         top_panels = self.driver.find_elements(By.CLASS_NAME, "pv-text-details__left-panel")
         name_container_elem, location_container_elem, *_ = top_panels
         
@@ -265,7 +311,20 @@ class Person(Scraper):
         location_elem = location_container_elem.find_element(By.TAG_NAME, "span")
         self.location = location_elem.text if location_elem else None
 
+    @backoff.on_exception(
+        backoff.expo,
+        (
+            selenium.common.exceptions.TimeoutException,
+            selenium.common.exceptions.WebDriverException,
+            selenium.common.exceptions.StaleElementReferenceException,
+            selenium.common.exceptions.ElementNotInteractableException,
+            selenium.common.exceptions.NoSuchElementException,
+            selenium.common.exceptions.UnexpectedAlertPresentException,
+        ),
+        max_time=60
+    )
     def get_about(self):
+        time.sleep(random.uniform(0, 2))  # Sleep for a random time
         try:
             about = self.driver.find_element(By.ID, "about").find_element(By.XPATH, "..").find_element(By.CLASS_NAME, "display-flex").text
         except NoSuchElementException:
