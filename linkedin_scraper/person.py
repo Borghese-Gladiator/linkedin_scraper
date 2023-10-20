@@ -303,13 +303,20 @@ class Person(Scraper):
     def get_name_and_location(self):
         time.sleep(random.uniform(0, 3))  # Sleep for a random time
         top_panels = self.driver.find_elements(By.CLASS_NAME, "pv-text-details__left-panel")
-        name_container_elem, location_container_elem, *_ = top_panels
+        name_container_elem = top_panels[0] if len(top_panels) > 0 else None
+        location_container_elem = top_panels[1] if len(top_panels) > 1 else None
         
-        name_elem, *_ = name_container_elem.find_elements(By.XPATH, "*")
-        self.name = name_elem.text if name_elem else None
+        if name_container_elem is None:
+            self.name = None
+        else:
+            name_elem, *_ = name_container_elem.find_elements(By.XPATH, "*")
+            self.name = name_elem.text if name_elem else None
         
-        location_elem = location_container_elem.find_element(By.TAG_NAME, "span")
-        self.location = location_elem.text if location_elem else None
+        if location_container_elem is None:
+            self.location = None
+        else:
+            location_elem = location_container_elem.find_element(By.TAG_NAME, "span")
+            self.location = location_elem.text if location_elem else None
 
     @backoff.on_exception(
         backoff.expo,
