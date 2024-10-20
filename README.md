@@ -1,3 +1,11 @@
+## Fork Changes
+Writing this off memory of events from a year ago.
+
+- I fixed the project to run by pinning dependencies using poetry
+- I added sleeps and exponential backoff to not get blocked
+- I fixed some selectors to properly get values that were present, but were thought null
+
+
 # Linkedin Scraper
 
 Scrapes Linkedin User Data
